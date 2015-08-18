@@ -47,10 +47,12 @@ public class ImageAdapter extends BaseAdapter{
 
         Picasso.with(mContext)
                 .load(mPosters[position])
+                .resize(240,390)
+                .centerCrop()
                 .into(imageView);
         return imageView;
     }
-    public void getPosters(String[] posters)
+    public void setPosters(String[] posters)
     {
         mPosters = posters;
     }

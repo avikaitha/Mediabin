@@ -1,5 +1,6 @@
 package in.mediabin.mediabin;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +29,13 @@ import java.net.URL;
 public class MainActivityFragment extends Fragment {
 
     public static  final String LOG_TAG = "app.Mediabin";
+    public static  final String EXTRA_BACKGRND = "app.Mediabin.EXTRA_BACKGRND";
+    public static  final String EXTRA_SUMMARY = "app.Mediabin.EXTRA_SUMMARY";
+    public static  final String EXTRA_TITLE = "app.Mediabin.EXTRA_TITLE";
+    String[] backgrnd;
+    String[] summary;
     ImageAdapter imageAdapter;
+    String[] titles;
     public MainActivityFragment() {
     }
     private void updateMedia() {
@@ -54,8 +60,11 @@ public class MainActivityFragment extends Fragment {
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Toast.makeText(getActivity(), "" + position,
-                        Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(),DetailActivity.class);
+                intent.putExtra(EXTRA_BACKGRND,backgrnd[position]);
+                intent.putExtra(EXTRA_SUMMARY,summary[position]);
+                intent.putExtra(EXTRA_TITLE,titles[position]);
+                startActivity(intent);
             }
         });
         return rootView;
@@ -70,15 +79,30 @@ public class MainActivityFragment extends Fragment {
             final String TMDB_POSTER = "poster_path";
             final String TMDB_IMG_BASE = "http://image.tmdb.org/t/p/";
             final String TMDB_POSTER_SIZE = "w185";
+            final String TMDB_BACKGRND_SIZE = "w500";
+            final String TMDB_OVERVIEW = "overview";
+            final String TMDB_BACKGRND = "backdrop_path";
+            final String TMDB_TITLE = "name";
             JSONObject mediaJson = new JSONObject(mediaJsonStr);
             JSONArray mediaResults = mediaJson.getJSONArray(TMDB_RESULTS);
             String[] posters = new String[mediaResults.length()];
-
+            summary = new String[mediaResults.length()];
+            backgrnd = new String[mediaResults.length()];
+            titles = new String[mediaResults.length()];
             for(int i=0;i<mediaResults.length();i++)
             {
                 posters[i] = TMDB_IMG_BASE
                         +TMDB_POSTER_SIZE
                         +mediaResults.getJSONObject(i).getString(TMDB_POSTER);
+
+                backgrnd[i] = TMDB_IMG_BASE
+                        +TMDB_BACKGRND_SIZE
+                        +mediaResults.getJSONObject(i).getString(TMDB_BACKGRND);
+
+                summary[i] = mediaResults.getJSONObject(i).getString(TMDB_OVERVIEW);
+
+                titles[i] = mediaResults.getJSONObject(i).getString(TMDB_TITLE);
+
                 Log.d(LOG_TAG,posters[i]);
             }
 
@@ -97,7 +121,7 @@ public class MainActivityFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String mediaJsonStr = null;
 
-            String format = "json";
+
 
 
 
@@ -177,7 +201,7 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             super.onPostExecute(result);
-            imageAdapter.getPosters(result);
+            imageAdapter.setPosters(result);
         }
     }
 }
