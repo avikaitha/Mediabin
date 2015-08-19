@@ -1,6 +1,8 @@
 package in.mediabin.mediabin;
 
+import android.app.Activity;
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -33,10 +35,18 @@ public class ImageAdapter extends BaseAdapter{
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView imageView;
+        double aspectRatio = 1.6;
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
+            DisplayMetrics metrics = new DisplayMetrics();
+            ((Activity)mContext).getWindowManager()
+                    .getDefaultDisplay()
+                    .getMetrics(metrics);
             imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(GridView.LayoutParams.MATCH_PARENT, 390));
+
+            int width = metrics.widthPixels/2;
+            int height = (int) (width * aspectRatio);
+            imageView.setLayoutParams(new GridView.LayoutParams(width,height ));
             imageView.setScaleType(ImageView.ScaleType.FIT_END);
             imageView.setPadding(0, 0, 0, 0);
 
@@ -44,7 +54,7 @@ public class ImageAdapter extends BaseAdapter{
         } else {
             imageView = (ImageView) convertView;
         }
-        int width = GridView.LayoutParams.MATCH_PARENT;
+
         Picasso.with(mContext)
                 .load(mPosters[position])
                 .fit()
