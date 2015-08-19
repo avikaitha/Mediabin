@@ -36,19 +36,18 @@ public class ImageAdapter extends BaseAdapter{
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(240, 390));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            imageView.setLayoutParams(new GridView.LayoutParams(GridView.LayoutParams.MATCH_PARENT, 390));
+            imageView.setScaleType(ImageView.ScaleType.FIT_END);
             imageView.setPadding(0, 0, 0, 0);
 
 
         } else {
             imageView = (ImageView) convertView;
         }
-
+        int width = GridView.LayoutParams.MATCH_PARENT;
         Picasso.with(mContext)
                 .load(mPosters[position])
-                .resize(240,390)
-                .centerCrop()
+                .fit()
                 .into(imageView);
         return imageView;
     }

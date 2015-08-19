@@ -54,6 +54,7 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
+
         imageAdapter = new ImageAdapter(getActivity());
         gridview.setAdapter(imageAdapter);
 
