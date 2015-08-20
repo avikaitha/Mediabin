@@ -36,11 +36,14 @@ public class MainActivityFragment extends Fragment {
     String[] summary;
     ImageAdapter imageAdapter;
     String[] titles;
+    GridView gridview;
     public MainActivityFragment() {
     }
     private void updateMedia() {
         Fetchmedia mediaTask = new Fetchmedia();
-        mediaTask.execute();
+        mediaTask.execute(1);
+
+
     }
 
     @Override
@@ -53,26 +56,28 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
+         gridview = (GridView) rootView.findViewById(R.id.gridview);
 
         imageAdapter = new ImageAdapter(getActivity());
         gridview.setAdapter(imageAdapter);
-
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Intent intent = new Intent(getActivity(),DetailActivity.class);
-                intent.putExtra(EXTRA_BACKGRND,backgrnd[position]);
-                intent.putExtra(EXTRA_SUMMARY,summary[position]);
-                intent.putExtra(EXTRA_TITLE,titles[position]);
+                Intent intent = new Intent(getActivity(), DetailActivity.class);
+                intent.putExtra(EXTRA_BACKGRND, backgrnd[position]);
+                intent.putExtra(EXTRA_SUMMARY, summary[position]);
+                intent.putExtra(EXTRA_TITLE, titles[position]);
                 startActivity(intent);
             }
         });
+
+
         return rootView;
     }
 
-    public class Fetchmedia extends AsyncTask<Void,Void,String[]> {
+    public class Fetchmedia extends AsyncTask<Integer,Void,String[]> {
 
+        int page;
         private String[] getDataFromJson(String mediaJsonStr)
                 throws JSONException
         {
@@ -113,14 +118,14 @@ public class MainActivityFragment extends Fragment {
 
 
         @Override
-        protected String[] doInBackground(Void... params) {
+        protected String[] doInBackground(Integer... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
             // Will contain the raw JSON response as a string.
-            String mediaJsonStr = null;
+            String mediaJsonStr = "";
 
 
 
@@ -131,44 +136,49 @@ public class MainActivityFragment extends Fragment {
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
                 final String FORECAST_BASE_URL =
-                        "http://api.themoviedb.org/3/discover/tv?";
+                        "http://api.themoviedb.org/3/";
+                final String URL_CATEGORY = "tv/popular?";
+                final String PAGE_PARAM = "page";
                 final String SORT_BY_PARAM = "sort_by";
                 final String API_KEY_PARAM = "api_key";
                 final String API_KEY = "9b4ce4f4209c8d8e9ce97f073100672b";
-                Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                        .appendQueryParameter(SORT_BY_PARAM, "popularity.desc")
-                        .appendQueryParameter(API_KEY_PARAM, API_KEY)
-                        .build();
+                 page = params[0];
+                    Uri builtUri = Uri.parse(FORECAST_BASE_URL + URL_CATEGORY).buildUpon()
+                            .appendQueryParameter(SORT_BY_PARAM, "popularity.desc")
+                            .appendQueryParameter(PAGE_PARAM, page + "")
+                            .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                            .build();
 
-                URL url = new URL(builtUri.toString());
-                Log.d(LOG_TAG,url.toString());
-                // Create the request to OpenWeatherMap, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
+                    URL url = new URL(builtUri.toString());
+                    Log.d(LOG_TAG, url.toString());
+                    // Create the request to OpenWeatherMap, and open the connection
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
 
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    // Nothing to do.
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
+                    // Read the input stream into a String
+                    InputStream inputStream = urlConnection.getInputStream();
+                    StringBuffer buffer = new StringBuffer();
+                    if (inputStream == null) {
+                        // Nothing to do.
+                        return null;
+                    }
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line + "\n");
-                }
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                        // But it does make debugging a *lot* easier if you print out the completed
+                        // buffer for debugging.
+                        buffer.append(line + "\n");
+                    }
 
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-                mediaJsonStr = buffer.toString();
+                    if (buffer.length() == 0) {
+                        // Stream was empty.  No point in parsing.
+                        return null;
+                    }
+                    mediaJsonStr = mediaJsonStr+buffer.toString();
+
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
@@ -202,7 +212,15 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             super.onPostExecute(result);
+
+            imageAdapter.notifyDataSetChanged();
             imageAdapter.setPosters(result);
+//            if(page == 1)
+//            {
+//                page++;
+//                new Fetchmedia().execute(page);
+//            }
         }
+
     }
 }
