@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
@@ -22,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -32,16 +34,18 @@ public class MainActivityFragment extends Fragment {
     public static  final String EXTRA_BACKGRND = "app.Mediabin.EXTRA_BACKGRND";
     public static  final String EXTRA_SUMMARY = "app.Mediabin.EXTRA_SUMMARY";
     public static  final String EXTRA_TITLE = "app.Mediabin.EXTRA_TITLE";
-    String[] backgrnd;
-    String[] summary;
+    ArrayList<String> backgrnd = new ArrayList<>();;
+    ArrayList<String> summary = new ArrayList<>();;
     ImageAdapter imageAdapter;
-    String[] titles;
+    ArrayList<String> titles = new ArrayList<>();;
+    ArrayList<String> posters = new ArrayList<>();;
     GridView gridview;
+    int pageNo = 1;
     public MainActivityFragment() {
     }
     private void updateMedia() {
         Fetchmedia mediaTask = new Fetchmedia();
-        mediaTask.execute(1);
+        mediaTask.execute(pageNo);
 
 
     }
@@ -64,21 +68,55 @@ public class MainActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
                 Intent intent = new Intent(getActivity(), DetailActivity.class);
-                intent.putExtra(EXTRA_BACKGRND, backgrnd[position]);
-                intent.putExtra(EXTRA_SUMMARY, summary[position]);
-                intent.putExtra(EXTRA_TITLE, titles[position]);
+                intent.putExtra(EXTRA_BACKGRND, backgrnd.get(position));
+                intent.putExtra(EXTRA_SUMMARY, summary.get(position));
+                intent.putExtra(EXTRA_TITLE, titles.get(position));
                 startActivity(intent);
             }
         });
 
 
+        gridview.setOnScrollListener(new AbsListView.OnScrollListener() {
+            int currentFirstVisibleItem = 0;
+            int currentVisibleItemCount = 0;
+            int totalItemCount = 0;
+            int currentScrollState = 0;
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                this.currentScrollState = scrollState;
+                this.isScrollCompleted();
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+                this.currentFirstVisibleItem = firstVisibleItem;
+                this.currentVisibleItemCount = visibleItemCount;
+                this.totalItemCount = totalItemCount;
+            }
+
+            private void isScrollCompleted() {
+                if (this.currentVisibleItemCount > 0 && this.currentScrollState == SCROLL_STATE_IDLE && this.totalItemCount == (currentFirstVisibleItem + currentVisibleItemCount)) {
+                    /*** In this way I detect if there's been a scroll which has completed ***/
+                    /*** do the work for load more date! ***/
+                    if (pageNo<3) {
+
+                        pageNo++;
+                        new Fetchmedia().execute(pageNo);
+
+                    }
+                }
+            }
+        });
+
         return rootView;
     }
 
-    public class Fetchmedia extends AsyncTask<Integer,Void,String[]> {
+    public class Fetchmedia extends AsyncTask<Integer,Void,ArrayList> {
 
         int page;
-        private String[] getDataFromJson(String mediaJsonStr)
+        private ArrayList getDataFromJson(String mediaJsonStr)
                 throws JSONException
         {
             final String TMDB_RESULTS = "results";
@@ -91,25 +129,22 @@ public class MainActivityFragment extends Fragment {
             final String TMDB_TITLE = "name";
             JSONObject mediaJson = new JSONObject(mediaJsonStr);
             JSONArray mediaResults = mediaJson.getJSONArray(TMDB_RESULTS);
-            String[] posters = new String[mediaResults.length()];
-            summary = new String[mediaResults.length()];
-            backgrnd = new String[mediaResults.length()];
-            titles = new String[mediaResults.length()];
+
             for(int i=0;i<mediaResults.length();i++)
             {
-                posters[i] = TMDB_IMG_BASE
+                posters.add(TMDB_IMG_BASE
                         +TMDB_POSTER_SIZE
-                        +mediaResults.getJSONObject(i).getString(TMDB_POSTER);
+                        +mediaResults.getJSONObject(i).getString(TMDB_POSTER));
 
-                backgrnd[i] = TMDB_IMG_BASE
+                backgrnd.add(TMDB_IMG_BASE
                         +TMDB_BACKGRND_SIZE
-                        +mediaResults.getJSONObject(i).getString(TMDB_BACKGRND);
+                        +mediaResults.getJSONObject(i).getString(TMDB_BACKGRND));
 
-                summary[i] = mediaResults.getJSONObject(i).getString(TMDB_OVERVIEW);
+                summary.add(mediaResults.getJSONObject(i).getString(TMDB_OVERVIEW));
 
-                titles[i] = mediaResults.getJSONObject(i).getString(TMDB_TITLE);
+                titles.add(mediaResults.getJSONObject(i).getString(TMDB_TITLE));
 
-                Log.d(LOG_TAG,posters[i]);
+                Log.d(LOG_TAG,posters.get(i));
             }
 
             return posters;
@@ -118,7 +153,7 @@ public class MainActivityFragment extends Fragment {
 
 
         @Override
-        protected String[] doInBackground(Integer... params) {
+        protected ArrayList doInBackground(Integer... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -210,16 +245,12 @@ public class MainActivityFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String[] result) {
+        protected void onPostExecute(ArrayList result) {
             super.onPostExecute(result);
 
             imageAdapter.notifyDataSetChanged();
             imageAdapter.setPosters(result);
-//            if(page == 1)
-//            {
-//                page++;
-//                new Fetchmedia().execute(page);
-//            }
+
         }
 
     }
