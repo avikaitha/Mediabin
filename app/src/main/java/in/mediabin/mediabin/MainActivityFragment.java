@@ -34,11 +34,11 @@ public class MainActivityFragment extends Fragment {
     public static  final String EXTRA_BACKGRND = "app.Mediabin.EXTRA_BACKGRND";
     public static  final String EXTRA_SUMMARY = "app.Mediabin.EXTRA_SUMMARY";
     public static  final String EXTRA_TITLE = "app.Mediabin.EXTRA_TITLE";
-    ArrayList<String> backgrnd = new ArrayList<>();;
-    ArrayList<String> summary = new ArrayList<>();;
+    ArrayList<String> backgrnd = new ArrayList<>();
+    ArrayList<String> summary = new ArrayList<>();
     ImageAdapter imageAdapter;
-    ArrayList<String> titles = new ArrayList<>();;
-    ArrayList<String> posters = new ArrayList<>();;
+    ArrayList<String> titles = new ArrayList<>();
+    ArrayList<String> posters = new ArrayList<>();
     GridView gridview;
     int pageNo = 1;
     public MainActivityFragment() {
@@ -53,17 +53,18 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateMedia();
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-         gridview = (GridView) rootView.findViewById(R.id.gridview);
+        gridview = (GridView) rootView.findViewById(R.id.gridview);
 
         imageAdapter = new ImageAdapter(getActivity());
         gridview.setAdapter(imageAdapter);
+
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
@@ -100,16 +101,18 @@ public class MainActivityFragment extends Fragment {
                 if (this.currentVisibleItemCount > 0 && this.currentScrollState == SCROLL_STATE_IDLE && this.totalItemCount == (currentFirstVisibleItem + currentVisibleItemCount)) {
                     /*** In this way I detect if there's been a scroll which has completed ***/
                     /*** do the work for load more date! ***/
-                    if (pageNo<3) {
+                    if (pageNo < 3) {
 
                         pageNo++;
                         new Fetchmedia().execute(pageNo);
+                        Log.d(LOG_TAG, pageNo + "");
 
                     }
                 }
             }
         });
 
+        updateMedia();
         return rootView;
     }
 

@@ -3,25 +3,33 @@ package in.mediabin.mediabin;
 import android.app.Activity;
 import android.content.Context;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 /**
  * Created by Avinash on 8/18/2015.
  */
 public class ImageAdapter extends BaseAdapter{
     private Context mContext;
-    private String[] mPosters = new String[20];
+    private ArrayList<String> mPosters = new ArrayList<>();
+    private static LayoutInflater inflater = null;
     public ImageAdapter(Context c) {
         mContext = c;
+        inflater = ( LayoutInflater )mContext.
+                getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
     public int getCount() {
-        return 20;
+        return mPosters.size();
     }
 
     public Object getItem(int position) {
@@ -33,35 +41,45 @@ public class ImageAdapter extends BaseAdapter{
     }
 
     // create a new ImageView for each item referenced by the Adapter
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView imageView;
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        View resultView = inflater.inflate(R.layout.grid_item_layout,null);
+        ImageView imageView = (ImageView) resultView.findViewById(R.id.imageView);
+
+
         double aspectRatio = 1.6;
-        if (convertView == null) {
+
             // if it's not recycled, initialize some attributes
             DisplayMetrics metrics = new DisplayMetrics();
             ((Activity)mContext).getWindowManager()
                     .getDefaultDisplay()
                     .getMetrics(metrics);
-            imageView = new ImageView(mContext);
+
 
             int width = metrics.widthPixels/2;
             int height = (int) (width * aspectRatio);
-            imageView.setLayoutParams(new GridView.LayoutParams(width,height ));
+            imageView.setLayoutParams(new RelativeLayout.LayoutParams(width,height ));
             imageView.setScaleType(ImageView.ScaleType.FIT_END);
             imageView.setPadding(0, 0, 0, 0);
-
-
-        } else {
-            imageView = (ImageView) convertView;
+        if(!mPosters.isEmpty())
+        {
+            Picasso.with(mContext)
+                    .load(mPosters.get(position))
+                    .fit()
+                    .error(R.drawable.fading_0)
+                    .into(imageView);
         }
 
-        Picasso.with(mContext)
-                .load(mPosters[position])
-                .fit()
-                .into(imageView);
-        return imageView;
+        Button addButton = (Button) resultView.findViewById(R.id.button);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mContext, "Test"+position, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        return resultView;
     }
-    public void setPosters(String[] posters)
+    public void setPosters(ArrayList<String> posters)
     {
         mPosters = posters;
     }

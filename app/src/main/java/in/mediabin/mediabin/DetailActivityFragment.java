@@ -1,8 +1,8 @@
 package in.mediabin.mediabin;
 
 import android.content.Intent;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +16,14 @@ import com.squareup.picasso.Picasso;
  */
 public class DetailActivityFragment extends Fragment {
 
+
     public DetailActivityFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         Intent intent = getActivity().getIntent();
         String summary = intent.getStringExtra(MainActivityFragment.EXTRA_SUMMARY);
@@ -36,6 +38,9 @@ public class DetailActivityFragment extends Fragment {
                 .resize(480,240)
                 .centerCrop()
                 .into(imageView);
+
+
         return rootView;
     }
+
 }
