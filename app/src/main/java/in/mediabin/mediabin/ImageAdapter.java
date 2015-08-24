@@ -22,6 +22,7 @@ import java.util.ArrayList;
 public class ImageAdapter extends BaseAdapter{
     private Context mContext;
     private ArrayList<String> mPosters = new ArrayList<>();
+    private ArrayList<Integer> mChecklist = new ArrayList<>();
     private static LayoutInflater inflater = null;
     public ImageAdapter(Context c) {
         mContext = c;
@@ -69,11 +70,38 @@ public class ImageAdapter extends BaseAdapter{
                     .into(imageView);
         }
 
-        Button addButton = (Button) resultView.findViewById(R.id.button);
+        final Button addButton = (Button) resultView.findViewById(R.id.button);
+        if(!mChecklist.isEmpty()) {
+            if(mChecklist.indexOf(position) != -1)
+            {
+                addButton.setSelected(true);
+            }
+        }
+
+
         addButton.setOnClickListener(new View.OnClickListener() {
+            boolean selectFlag = mChecklist.indexOf(position) ==-1 ? false:true;
+
+
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, "Test"+position, Toast.LENGTH_SHORT).show();
+                v.setSelected(!selectFlag);
+                selectFlag = !selectFlag;
+                if(selectFlag)
+                {
+                    mChecklist.add(position);
+                }
+                else
+                {
+                    int checkpos = mChecklist.indexOf(position);
+                    if(checkpos != -1)
+                    {
+                        mChecklist.remove(checkpos);
+                    }
+                }
+
+
+                Toast.makeText(mContext, "Test: "+position+selectFlag, Toast.LENGTH_SHORT).show();
             }
         });
 
