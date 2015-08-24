@@ -10,9 +10,9 @@
 
     </item>
 
-    <item android:drawable="@drawable/ic_done_white_24dp"
-        android:left="100dp"
-        android:right="100dp"
-
-        />
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/ic_done_white_24dp" />
+    </item>
 </layer-list>
