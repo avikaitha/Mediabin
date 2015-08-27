@@ -33,7 +33,7 @@ public class DetailActivityFragment extends Fragment {
         getActivity().setTitle(title);
         TextView summaryTextView = (TextView) rootView.findViewById(R.id.summary);
         summaryTextView.setText(summary);
-        ImageView imageView = (ImageView) rootView.findViewById(R.id.backgrnd);
+        ImageView imageView = (ImageView) rootView.findViewById(R.id.image);
         DisplayMetrics metrics = new DisplayMetrics();
         double aspectRatio = 0.5;
         getActivity().getWindowManager()
