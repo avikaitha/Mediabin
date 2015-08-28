@@ -3,9 +3,9 @@ package in.mediabin.mediabin;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -13,12 +13,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.github.ksoichiro.android.observablescrollview.ScrollUtils;
+import com.melnykov.fab.FloatingActionButton;
 import com.nineoldandroids.view.ViewHelper;
 import com.nineoldandroids.view.ViewPropertyAnimator;
 
@@ -31,7 +31,7 @@ public class DetailActivity extends AppCompatActivity
     private View mOverlayView;
     private ObservableScrollView mScrollView;
     private TextView mTitleView;
-    private View mFab;
+    private FloatingActionButton mFab;
     private int mActionBarSize;
     private int mFlexibleSpaceShowFabOffset;
     private int mFlexibleSpaceImageHeight;
@@ -62,11 +62,33 @@ public class DetailActivity extends AppCompatActivity
         mTitleView = (TextView) findViewById(R.id.title);
         mTitleView.setText(getTitle());
         setTitle(null);
-        mFab = findViewById(R.id.fab);
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
+            boolean selectFlag = false;
+
+
             @Override
             public void onClick(View v) {
-                Toast.makeText(DetailActivity.this, "FAB is clicked", Toast.LENGTH_SHORT).show();
+                mFab.setSelected(!selectFlag);
+                selectFlag = !selectFlag;
+                if(selectFlag)
+                {
+                    mFab.setColorNormal(Color.GREEN);
+
+                }
+                else
+                {
+                    mFab.setColorNormal(getResources().getColor(R.color.accentLight));
+
+//                    int checkpos = mChecklist.indexOf(position);
+//                    if(checkpos != -1)
+//                    {
+//                        mChecklist.remove(checkpos);
+//                    }
+                }
+
+
+
             }
         });
         mFabMargin = getResources().getDimensionPixelSize(R.dimen.margin_standard);

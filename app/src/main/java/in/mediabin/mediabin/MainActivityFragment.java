@@ -34,11 +34,13 @@ public class MainActivityFragment extends Fragment {
     public static  final String EXTRA_BACKGRND = "app.Mediabin.EXTRA_BACKGRND";
     public static  final String EXTRA_SUMMARY = "app.Mediabin.EXTRA_SUMMARY";
     public static  final String EXTRA_TITLE = "app.Mediabin.EXTRA_TITLE";
+    public static  final String EXTRA_ID = "app.Mediabin.EXTRA_ID";
     ArrayList<String> backgrnd = new ArrayList<>();
     ArrayList<String> summary = new ArrayList<>();
     ImageAdapter imageAdapter;
     ArrayList<String> titles = new ArrayList<>();
     ArrayList<String> posters = new ArrayList<>();
+    ArrayList<String> series_id = new ArrayList<>();
     GridView gridview;
     int pageNo = 1;
     public MainActivityFragment() {
@@ -72,6 +74,7 @@ public class MainActivityFragment extends Fragment {
                 intent.putExtra(EXTRA_BACKGRND, backgrnd.get(position));
                 intent.putExtra(EXTRA_SUMMARY, summary.get(position));
                 intent.putExtra(EXTRA_TITLE, titles.get(position));
+                intent.putExtra(EXTRA_ID,series_id.get(position));
                 startActivity(intent);
             }
         });
@@ -130,18 +133,20 @@ public class MainActivityFragment extends Fragment {
             final String TMDB_OVERVIEW = "overview";
             final String TMDB_BACKGRND = "backdrop_path";
             final String TMDB_TITLE = "name";
+            final String TMDB_ID = "id";
             JSONObject mediaJson = new JSONObject(mediaJsonStr);
             JSONArray mediaResults = mediaJson.getJSONArray(TMDB_RESULTS);
 
             for(int i=0;i<mediaResults.length();i++)
             {
+                series_id.add(mediaResults.getJSONObject(i).getString(TMDB_ID));
                 posters.add(TMDB_IMG_BASE
                         +TMDB_POSTER_SIZE
                         +mediaResults.getJSONObject(i).getString(TMDB_POSTER));
 
                 backgrnd.add(TMDB_IMG_BASE
-                        +TMDB_BACKGRND_SIZE
-                        +mediaResults.getJSONObject(i).getString(TMDB_BACKGRND));
+                        + TMDB_BACKGRND_SIZE
+                        + mediaResults.getJSONObject(i).getString(TMDB_BACKGRND));
 
                 summary.add(mediaResults.getJSONObject(i).getString(TMDB_OVERVIEW));
 
@@ -173,7 +178,7 @@ public class MainActivityFragment extends Fragment {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                final String FORECAST_BASE_URL =
+                final String TMBD_BASE_URL =
                         "http://api.themoviedb.org/3/";
                 final String URL_CATEGORY = "tv/popular?";
                 final String PAGE_PARAM = "page";
@@ -181,7 +186,7 @@ public class MainActivityFragment extends Fragment {
                 final String API_KEY_PARAM = "api_key";
                 final String API_KEY = "9b4ce4f4209c8d8e9ce97f073100672b";
                  page = params[0];
-                    Uri builtUri = Uri.parse(FORECAST_BASE_URL + URL_CATEGORY).buildUpon()
+                    Uri builtUri = Uri.parse(TMBD_BASE_URL + URL_CATEGORY).buildUpon()
                             .appendQueryParameter(SORT_BY_PARAM, "popularity.desc")
                             .appendQueryParameter(PAGE_PARAM, page + "")
                             .appendQueryParameter(API_KEY_PARAM, API_KEY)
