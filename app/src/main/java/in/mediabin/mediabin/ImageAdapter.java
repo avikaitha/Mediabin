@@ -66,7 +66,7 @@ public class ImageAdapter extends BaseAdapter{
             Picasso.with(mContext)
                     .load(mPosters.get(position))
                     .fit()
-                    .error(R.drawable.fading_0)
+                    .error(R.drawable.error)
                     .into(imageView);
         }
 

@@ -12,4 +12,8 @@ Quam libero nulla netus eu porta curae, ut nulla bibendum facilisis et urna sed,
 
     <string name="title_cast">Cast</string>
     <string name="title_activity_actor">ActorActivity</string>
+    <string name="title_created_by">Created by:</string>
+    <string name="title_genre">Genre:</string>
+    <string name="title_network">Network:</string>
+    <string name="placeholder">Placeholder</string>
 </resources>
