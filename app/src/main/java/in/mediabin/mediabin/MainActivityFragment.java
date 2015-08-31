@@ -4,13 +4,19 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.Spinner;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -43,22 +49,34 @@ public class MainActivityFragment extends Fragment {
     ArrayList<String> series_id = new ArrayList<>();
     GridView gridview;
     int pageNo = 1;
+    int genreID = -1;
     public MainActivityFragment() {
     }
-    private void updateMedia(int page) {
+    private void updateMedia(int page, int genre) {
 
 
         final String URL_CATEGORY = "discover/tv?";
         final String PAGE_PARAM = "page";
         final String SORT_BY_PARAM = "sort_by";
         final String API_KEY_PARAM = "api_key";
+        final String GENRE_PARAM = "with_genres";
+        Uri builtUri;
+        if(genre != -1) {
+             builtUri = Uri.parse(GetString.TMDB_BASE_URL + URL_CATEGORY).buildUpon()
+                    .appendQueryParameter(SORT_BY_PARAM, "popularity.desc")
+                    .appendQueryParameter(PAGE_PARAM, page + "")
+                    .appendQueryParameter(GENRE_PARAM,genre+"")
+                    .appendQueryParameter(API_KEY_PARAM, GetString.API_KEY)
+                    .build();
+        }
+        else {
+             builtUri = Uri.parse(GetString.TMDB_BASE_URL + URL_CATEGORY).buildUpon()
+                    .appendQueryParameter(SORT_BY_PARAM, "popularity.desc")
+                    .appendQueryParameter(PAGE_PARAM, page + "")
+                    .appendQueryParameter(API_KEY_PARAM, GetString.API_KEY)
+                    .build();
+        }
 
-
-        Uri builtUri = Uri.parse(GetString.TMDB_BASE_URL + URL_CATEGORY).buildUpon()
-                .appendQueryParameter(SORT_BY_PARAM, "popularity.desc")
-                .appendQueryParameter(PAGE_PARAM, page + "")
-                .appendQueryParameter(API_KEY_PARAM, GetString.API_KEY)
-                .build();
 
         URL url = null;
         try {
@@ -66,7 +84,7 @@ public class MainActivityFragment extends Fragment {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
+        Log.d(LOG_TAG,url.toString());
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, String.valueOf(url), (String)null, new Response.Listener<JSONObject>() {
                     ArrayList<String> mPosters = new ArrayList<>();
@@ -144,10 +162,11 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        setHasOptionsMenu(true);
         gridview = (GridView) rootView.findViewById(R.id.gridview);
 
         imageAdapter = new ImageAdapter(getActivity());
-        updateMedia(1);
+
         gridview.setAdapter(imageAdapter);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -187,10 +206,11 @@ public class MainActivityFragment extends Fragment {
                 if (this.currentVisibleItemCount > 0 && this.currentScrollState == SCROLL_STATE_IDLE && this.totalItemCount == (currentFirstVisibleItem + currentVisibleItemCount)) {
                     /*** In this way I detect if there's been a scroll which has completed ***/
                     /*** do the work for load more date! ***/
+
                     if (pageNo < 3) {
 
                         pageNo++;
-                        updateMedia(pageNo);
+                        updateMedia(pageNo,genreID);
                         Log.d(LOG_TAG, pageNo + "");
 
                     }
@@ -202,4 +222,101 @@ public class MainActivityFragment extends Fragment {
         return rootView;
     }
 
+    ArrayList<String> genres = new ArrayList<>();
+    ArrayList<Integer> genreIDList = new ArrayList<>();
+    public void getGenres() {
+        final String URL_CATEGORY = "genre/tv/list";
+
+        final String API_KEY_PARAM = "api_key";
+
+
+        Uri builtUri = Uri.parse(GetString.TMDB_BASE_URL + URL_CATEGORY).buildUpon()
+                .appendQueryParameter(API_KEY_PARAM, GetString.API_KEY)
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, String.valueOf(url), (String)null, new Response.Listener<JSONObject>() {
+
+
+                    final String TMDB_GENRES = "genres";
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray mediaResults = response.getJSONArray(TMDB_GENRES);
+
+                            for(int i = 0; i<mediaResults.length();i++) {
+                                genres.add(mediaResults.getJSONObject(i).getString("name"));
+                                genreIDList.add(mediaResults.getJSONObject(i).getInt("id"));
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO Auto-generated method stub
+
+                    }
+                });
+        VolleySingleton.getInstance(getActivity().getApplicationContext()).addToRequestQueue(jsObjRequest);
+
+
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        MenuItem item = menu.findItem(R.id.spinner);
+        Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
+        genres.add("All");
+        getGenres();
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(getActivity(),
+                        android.R.layout.simple_spinner_item,
+                        genres);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                backgrnd.clear();
+                titles.clear();
+                posters.clear();
+                series_id .clear();
+                summary.clear();
+                gridview.setSelection(0);
+                pageNo = 1;
+                if (position != 0) {
+
+                    updateMedia(pageNo, genreIDList.get(position-1));
+                    genreID = genreIDList.get(position - 1);
+                } else {
+                    genreID = -1;
+                    updateMedia(pageNo, genreID);
+
+                }
+
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+    }
 }
