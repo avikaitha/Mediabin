@@ -40,10 +40,11 @@
                 android:background="@android:color/transparent" />
 
             <TextView
+                android:id="@+id/status"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/placeholder"
+
                 android:textColor="@android:color/black"
                 android:background="@android:color/white"
                 android:paddingBottom="10dp"
@@ -246,7 +247,7 @@
         android:scaleType="center"
         android:src="@drawable/add_detail"
         app:fab_colorNormal="@color/accentLight"
-        app:fab_colorPressed="@color/accent"
+        app:fab_colorRipple="?attr/colorControlHighlight"
 
         />
     <android.support.v7.widget.Toolbar

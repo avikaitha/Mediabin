@@ -13,12 +13,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<resources>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <color name="primary">#3E63D1</color>
-    <color name="primaryDark">#3859BC</color>
-    <color name="FABprimaryDark">#0000796b</color>
-    <color name="accent">#00FF00</color>
-    <color name="accentLight">#5959FF</color>
+    <include layout="@layout/padding" />
 
-</resources>
+    <include layout="@layout/padding" />
+
+</LinearLayout>

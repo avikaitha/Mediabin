@@ -13,12 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<resources>
-
-    <color name="primary">#3E63D1</color>
-    <color name="primaryDark">#3859BC</color>
-    <color name="FABprimaryDark">#0000796b</color>
-    <color name="accent">#00FF00</color>
-    <color name="accentLight">#5959FF</color>
-
-</resources>
+<View xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:minHeight="?attr/actionBarSize" />

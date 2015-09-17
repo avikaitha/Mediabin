@@ -1,23 +1,83 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="0dp"
-    android:paddingRight="0dp"
-    android:paddingTop="0dp"
-    android:paddingBottom="0dp" tools:context=".MainActivityFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/gridview"
+
+<!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent" android:paddingLeft="0dp"-->
+    <!--android:paddingRight="0dp"-->
+    <!--android:paddingTop="0dp"-->
+    <!--android:orientation="vertical"-->
+    <!--android:paddingBottom="0dp"-->
+    <!-->-->
+    <!--<View-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="?attr/actionBarSize"-->
+    <!--android:minHeight="?attr/actionBarSize" />-->
+    <!--<View-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="?attr/actionBarSize"-->
+    <!--android:minHeight="?attr/actionBarSize"-->
+
+    <!--android:id="@+id/empty_view"/>-->
+
+
+
+
+
+
+
+
+    <!--</LinearLayout>-->
+
+    <com.github.ksoichiro.android.observablescrollview.ObservableRecyclerView
+        android:id="@+id/recycler_gridview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
-        android:numColumns="2"
         android:verticalSpacing="0dp"
         android:horizontalSpacing="0dp"
-
+        android:background="@android:color/white"
         android:stretchMode="columnWidth"
         android:gravity="center"
-        />
 
+        />
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        android:orientation="vertical">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/main_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="18dp"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            app:popupTheme="@style/Theme.AppCompat.Light.DarkActionBar"
+            app:theme="@style/Toolbar" >
+        </android.support.v7.widget.Toolbar>
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/spinner_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="18dp"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            app:popupTheme="@style/Theme.AppCompat.Light.DarkActionBar"
+            app:theme="@style/Toolbar" >
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/genre_spinner"
+                android:popupBackground="#ffffff"
+                android:layout_gravity="center_horizontal|top" />
+        </android.support.v7.widget.Toolbar>
+
+
+    </LinearLayout>
     <ProgressBar
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"

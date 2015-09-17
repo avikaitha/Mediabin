@@ -1,5 +1,6 @@
 package in.mediabin.mediabin;
 
+import android.annotation.TargetApi;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Build;
@@ -39,11 +40,16 @@ public class DetailActivity extends AppCompatActivity
     private boolean mFabIsShown;
     private Toolbar mToolbar;
 
+
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setPadding(0, getStatusBarHeight(), 0, 0);
         setSupportActionBar(mToolbar);
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
@@ -54,7 +60,12 @@ public class DetailActivity extends AppCompatActivity
         mFlexibleSpaceImageHeight = getResources().getDimensionPixelSize(R.dimen.flexible_space_image_height);
         mFlexibleSpaceShowFabOffset = getResources().getDimensionPixelSize(R.dimen.flexible_space_show_fab_offset);
         mActionBarSize = getActionBarSize();
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
         mImageView = findViewById(R.id.image);
         mOverlayView = findViewById(R.id.overlay);
         mScrollView = (ObservableScrollView) findViewById(R.id.scroll);
@@ -63,6 +74,7 @@ public class DetailActivity extends AppCompatActivity
         mTitleView.setText(getTitle());
         setTitle(null);
         mFab = (FloatingActionButton) findViewById(R.id.fab);
+
         mFab.setOnClickListener(new View.OnClickListener() {
             boolean selectFlag = false;
 
@@ -74,6 +86,7 @@ public class DetailActivity extends AppCompatActivity
                 if(selectFlag)
                 {
                     mFab.setColorNormal(Color.GREEN);
+                    mFab.setColorPressed(Color.GREEN);
 
                 }
                 else
@@ -114,7 +127,14 @@ public class DetailActivity extends AppCompatActivity
         });
     }
 
-
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -142,9 +162,11 @@ public class DetailActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
-        float flexibleRange = mFlexibleSpaceImageHeight - mActionBarSize;
+        getWindow().setStatusBarColor(getResources().getColor(R.color.primaryDark));
+        float flexibleRange = mFlexibleSpaceImageHeight - mActionBarSize-getStatusBarHeight();
         int minOverlayTransitionY = mActionBarSize - mOverlayView.getHeight();
         ViewHelper.setTranslationY(mOverlayView, ScrollUtils.getFloat(-scrollY, minOverlayTransitionY, 0));
         ViewHelper.setTranslationY(mImageView, ScrollUtils.getFloat(-scrollY / 2, minOverlayTransitionY, 0));
@@ -186,6 +208,7 @@ public class DetailActivity extends AppCompatActivity
 
         // Show/hide FAB
         if (fabTranslationY < mFlexibleSpaceShowFabOffset) {
+
             hideFab();
         } else {
             showFab();
@@ -195,11 +218,19 @@ public class DetailActivity extends AppCompatActivity
         {
             mToolbar.setBackgroundColor(getResources().getColor(R.color.primary));
             mToolbar.setTitle(mTitleView.getText());
+            mFab.setVisibility(View.INVISIBLE);
+
+
         }
         else
         {
             mToolbar.setBackgroundColor(Color.TRANSPARENT);
             mToolbar.setTitle(null);
+            mFab.setVisibility(View.VISIBLE);
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
     }
 
@@ -208,8 +239,10 @@ public class DetailActivity extends AppCompatActivity
 
     }
 
+
     @Override
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+
 
     }
 
@@ -225,6 +258,7 @@ public class DetailActivity extends AppCompatActivity
         if (mFabIsShown) {
             ViewPropertyAnimator.animate(mFab).cancel();
             ViewPropertyAnimator.animate(mFab).scaleX(0).scaleY(0).setDuration(200).start();
+
             mFabIsShown = false;
         }
     }

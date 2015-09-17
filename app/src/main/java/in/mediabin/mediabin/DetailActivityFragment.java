@@ -34,12 +34,15 @@ public class DetailActivityFragment extends Fragment {
 
 
     public static  final String LOG_TAG = "app.Mediabin.Detail";
+    public static final String ACTOR_ID = "app.Mediabin.Actor";
+    public static final String ACTOR_NAME = "app.Mediabin.NAME";
+    public static final int RESULT_OK = 1;
     ArrayList<String> cast_posters = new ArrayList<>();
     ArrayList<String> character = new ArrayList<>();
     ArrayList<String> name = new ArrayList<>();
-
+    ArrayList<String> cast_id = new ArrayList<>();
     CastImageAdapter castimageadapter;
-    TextView created_by_textView,genre_textView,network_textView;
+    TextView created_by_textView,genre_textView,network_textView,status_textView;
     public DetailActivityFragment() {
     }
 
@@ -105,7 +108,7 @@ public class DetailActivityFragment extends Fragment {
 //            final String TMDB_BACKGRND_SIZE = "w500";
         final String TMDB_CHARACTER = "character";
         final String TMDB_NAME = "name";
-        final String TMDB_ID = "id";
+        final String TMDB_ACTOR_ID = "id";
 
         JSONArray mediaResults = mediaJson.getJSONArray(TMDB_CAST);
 
@@ -118,7 +121,7 @@ public class DetailActivityFragment extends Fragment {
             character.add(mediaResults.getJSONObject(i).getString(TMDB_CHARACTER));
 
             name.add(mediaResults.getJSONObject(i).getString(TMDB_NAME));
-
+            cast_id.add(mediaResults.getJSONObject(i).getString(TMDB_ACTOR_ID));
             Log.d(LOG_TAG, cast_posters.get(i));
         }
 
@@ -132,6 +135,7 @@ public class DetailActivityFragment extends Fragment {
         final String TMDB_CREATED = "created_by";
         final String TMDB_GENRE = "genres";
         final String TMDB_NETWORKS = "networks";
+        final String TMDB_STATUS = "status";
 
         Uri builtUri = Uri.parse(GetString.TMDB_BASE_URL + URL_CATEGORY).buildUpon()
                 .appendQueryParameter(API_KEY_PARAM, GetString.API_KEY)
@@ -175,11 +179,11 @@ public class DetailActivityFragment extends Fragment {
                             String created_by = makeStringfromArray(createdbyArray);
                             String genre = makeStringfromArray(genreArray);
                             String networks = makeStringfromArray(networksArray);
-
+                            String status = response.getString(TMDB_STATUS);
                             created_by_textView.setText(created_by);
                             genre_textView.setText(genre);
                             network_textView.setText(networks);
-
+                            status_textView.setText(status);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -210,7 +214,7 @@ public class DetailActivityFragment extends Fragment {
         created_by_textView = (TextView) rootView.findViewById(R.id.createdby_textView);
         genre_textView = (TextView) rootView.findViewById(R.id.genre_textView);
         network_textView = (TextView) rootView.findViewById(R.id.network_textView);
-
+        status_textView = (TextView) rootView.findViewById(R.id.status);
         Intent intent = getActivity().getIntent();
         String summary = intent.getStringExtra(MainActivityFragment.EXTRA_SUMMARY);
         String backgrnd_url = intent.getStringExtra(MainActivityFragment.EXTRA_BACKGRND);
@@ -221,12 +225,13 @@ public class DetailActivityFragment extends Fragment {
         summaryTextView.setText(summary);
         ImageView imageView = (ImageView) rootView.findViewById(R.id.image);
         DisplayMetrics metrics = new DisplayMetrics();
-        double aspectRatio = 0.5;
+        double aspectRatio = 0.6;
         getActivity().getWindowManager()
                 .getDefaultDisplay()
                 .getMetrics(metrics);
         int width = metrics.widthPixels;
         int height = (int) (width * aspectRatio);
+
         getSeries(series_id);
         Picasso.with(getActivity())
                 .load(backgrnd_url)
@@ -243,11 +248,16 @@ public class DetailActivityFragment extends Fragment {
         cast_gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                Intent intent = new Intent(getActivity(),ActorActivity.class)
+                        .putExtra(ACTOR_ID,cast_id.get(position))
+                        .putExtra(ACTOR_NAME,name.get(position));
+                startActivity(intent);
             }
         });
 
         return rootView;
     }
+
+
 
 }
